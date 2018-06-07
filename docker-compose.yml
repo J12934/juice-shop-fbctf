@@ -1,0 +1,40 @@
+version: '3'
+services:
+  mysql:
+    restart: always
+    image: j12934/fbctf-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    expose:
+      - "3306"
+
+  cache:
+    restart: always
+    image: j12934/fbctf-cache
+    expose:
+      - "11211"
+
+  hhvm:
+    restart: always
+    image: j12934/fbctf-hhvm
+    depends_on:
+      - mysql
+      - cache
+    expose:
+      - "9000"
+
+  nginx:
+    restart: always
+    image: j12934/fbctf-nginx
+    depends_on:
+      - hhvm
+    ports:
+      - "80:80"
+      - "443:443"
+
+  juice-shop:
+    image: bkimminich/juice-shop
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=fbctf
